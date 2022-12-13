@@ -23,7 +23,7 @@ float temp;
 float hum;
 int powerStateCurrent = 0;
 int powerStateLast;
-int fanState = 0;
+int systemState = 1;
 
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
@@ -33,24 +33,31 @@ pinMode(fan, OUTPUT);
 pinMode(power, INPUT);
 
 Serial.begin(9600);
-Serial.println("Current Room Temperature:");
-
 lcd.begin(16, 2);
-
 dht.begin();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
+  //LCD Display Portion, takes readings and then writes temp and hummidity to lcd
+  temp = dht.readTemperature();
+  hum = dht.readHumidity();
   lcd.setCursor(0,0);
   lcd.print("Temp C: ");
   lcd.print(temp,2);
   lcd.setCursor(0,1);
   lcd.print("Humidity: ");
-  lcd.print(hum, 2);
+  lcd.print(hum, 2);  
+
+  //turns fan on or off depending on read temperature from the above portion
+  if(temp>24){
+    digitalWrite(fan,HIGH);
+  }else if(temp<20){
+    digitalWrite(fan,LOW);
+  }
   
-  temp = dht.readTemperature();
-  hum = dht.readHumidity();
+
+  //error portion, if there is an error happening, it is detected here
   if(isnan(temp) || isnan(hum)){
    Serial.println("Error");
    digitalWrite(error, HIGH);
@@ -60,17 +67,24 @@ void loop() {
    return;
   }
 
-  Serial.println(temp);
-  
+  //System switch on and off
   powerStateLast = powerStateCurrent;
   powerStateCurrent = digitalRead(power);
-if(powerStateCurrent == HIGH && powerStateLast == LOW){
-  Serial.println(powerStateCurrent);
-  fanState = !fanState;
-  digitalWrite(fan, fanState);
-  digitalWrite(on, fanState);
-  digitalWrite(off, !fanState);
-  digitalWrite(error, LOW);
-  
+if(powerStateCurrent == HIGH && powerStateLast == LOW){ //using a pull down resistor button to toggle the system state
+  systemState = !systemState;  
 }
+
+if(systemState == 0){
+  digitalWrite(off,HIGH);
+  digitalWrite(on,LOW);
+  digitalWrite(fan,LOW);
+  lcd.noDisplay();
+}
+else{
+  digitalWrite(on,HIGH);
+  digitalWrite(off,LOW);
+  lcd.display();
+  return;
+}
+
 }
