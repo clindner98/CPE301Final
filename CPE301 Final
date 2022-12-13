@@ -1,3 +1,8 @@
+//CPE301 Final Project
+//Dylan Mendoza
+//Caleb Lindner
+//Hunter Robinson
+
 #include "DHT.h"
 #include <LiquidCrystal.h>
 
