@@ -31,17 +31,17 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 void setup() {
   // put your setup code here, to run once:
-pinMode(fan, OUTPUT);
-pinMode(power, INPUT);
+pinMode(fan, OUTPUT); //register
+pinMode(power, INPUT); // register
 
-Serial.begin(9600);
+Serial.begin(9600); //register
 lcd.begin(16, 2);
 dht.begin();
 }
 
 void loop() {
 
-  water = analogRead(level); //collect water level in cooler
+  water = analogRead(level); //collect water level in cooler, register
 
   //LCD Display Portion, takes readings and then writes temp and hummidity to lcd
   temp = dht.readTemperature();
@@ -55,19 +55,19 @@ void loop() {
 
   //turns fan on or off depending on read temperature from the above portion
   if(temp>24){
-    digitalWrite(fan,HIGH);
+    digitalWrite(fan,HIGH); //register
   }else if(temp<20){
-    digitalWrite(fan,LOW);
+    digitalWrite(fan,LOW); //register
   }
   
 
   //error portion, if there is an error happening, it is detected here
   if(isnan(temp) || isnan(hum)|| water<180){
-   Serial.println("Error");
-   digitalWrite(error, HIGH);
-   digitalWrite(on, LOW);
-   digitalWrite(off, LOW);
-   digitalWrite(fan,LOW);
+   Serial.println("Error"); //register
+   digitalWrite(error, HIGH); //register
+   digitalWrite(on, LOW); //regsiter
+   digitalWrite(off, LOW); //register
+   digitalWrite(fan,LOW); //register
    return;
   }
 
@@ -79,14 +79,14 @@ if(powerStateCurrent == HIGH && powerStateLast == LOW){ //using a pull down resi
 }
 
 if(systemState == 0){
-  digitalWrite(off,HIGH);
-  digitalWrite(on,LOW);
-  digitalWrite(fan,LOW);
+  digitalWrite(off,HIGH); //register
+  digitalWrite(on,LOW); //register
+  digitalWrite(fan,LOW); //register
   lcd.noDisplay();
 }
 else{
-  digitalWrite(on,HIGH);
-  digitalWrite(off,LOW);
+  digitalWrite(on,HIGH); //register
+  digitalWrite(off,LOW); //register
   lcd.display();
   return;
 }
