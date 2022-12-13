@@ -1,42 +1,76 @@
-void setup() {
-  
-   float Fahrenheit;
+#include "DHT.h"
+#include <LiquidCrystal.h>
 
+#define DHTTYPE DHT11
+#define DHTPIN 12
+
+DHT dht(DHTPIN, DHTTYPE);
+
+const int rs = 11;
+const int en = 10;
+const int d4 = 22;
+const int d5 = 23;
+const int d6 = 24;
+const int d7 = 25;
+
+const int fan =13;
+const int power = 2;
+const int error = 5;
+const int on = 6;
+const int off = 4;
+
+float temp;
+float hum;
+int powerStateCurrent = 0;
+int powerStateLast;
+int fanState = 0;
+
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+void setup() {
+  // put your setup code here, to run once:
+pinMode(fan, OUTPUT);
+pinMode(power, INPUT);
+
+Serial.begin(9600);
+Serial.println("Current Room Temperature:");
+
+lcd.begin(16, 2);
+
+dht.begin();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-
-}
-
-//Function to read temperature sensor
-void getTemp(){
-
-  sensorValue = analogRead(sensorPin); //reads sensor
+  lcd.setCursor(0,0);
+  lcd.print("Temp C: ");
+  lcd.print(temp,2);
+  lcd.setCursor(0,1);
+  lcd.print("Humidity: ");
+  lcd.print(hum, 2);
   
-  Fahrenheit = sensorValue; //convert to Fahrenheit
-
-  return Fahrenheit;  //Function will output Fahrenheit
-}
-
-//Function to compare Fahreinheit to threshold
-void compareToThreshold(getTemp){
-
-  int threshold = 50; //Arbitrary constant set as threshold
-  bool FanOnOff;  //Output to go next function
-  
-  if (getTemp>threshold){ // if-else to compare threshold to temp and set output variable
-    FanOnOff = 1;
+  temp = dht.readTemperature();
+  hum = dht.readHumidity();
+  if(isnan(temp) || isnan(hum)){
+   Serial.println("Error");
+   digitalWrite(error, HIGH);
+   digitalWrite(on, LOW);
+   digitalWrite(off, LOW);
+   digitalWrite(fan,LOW);
+   return;
   }
-  else if(getTemp<threshold){
-    FanOnOff = 0;
-  } 
 
-  return FanOnOff; 
+  Serial.println(temp);
+  
+  powerStateLast = powerStateCurrent;
+  powerStateCurrent = digitalRead(power);
+if(powerStateCurrent == HIGH && powerStateLast == LOW){
+  Serial.println(powerStateCurrent);
+  fanState = !fanState;
+  digitalWrite(fan, fanState);
+  digitalWrite(on, fanState);
+  digitalWrite(off, !fanState);
+  digitalWrite(error, LOW);
+  
 }
-
-//Function to turn fan on/off based on comparison to threshold
-void Fan(compareToThreshold){
-
 }
-
