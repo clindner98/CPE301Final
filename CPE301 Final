@@ -18,12 +18,14 @@ const int power = 2;
 const int error = 5;
 const int on = 6;
 const int off = 4;
+const int level = A0;
 
 float temp;
 float hum;
 int powerStateCurrent = 0;
 int powerStateLast;
 int systemState = 1;
+float water;
 
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
@@ -38,6 +40,8 @@ dht.begin();
 }
 
 void loop() {
+
+  water = analogRead(level); //collect water level in cooler
 
   //LCD Display Portion, takes readings and then writes temp and hummidity to lcd
   temp = dht.readTemperature();
@@ -58,7 +62,7 @@ void loop() {
   
 
   //error portion, if there is an error happening, it is detected here
-  if(isnan(temp) || isnan(hum)){
+  if(isnan(temp) || isnan(hum)|| water<180){
    Serial.println("Error");
    digitalWrite(error, HIGH);
    digitalWrite(on, LOW);
