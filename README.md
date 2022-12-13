@@ -1,4 +1,4 @@
-# CPE301Final
+# CPE301Final, Dylan Mendoza, Caleb Lindner, Hunter Robinson
 CPE301 Final project 
 
 void setup() {
